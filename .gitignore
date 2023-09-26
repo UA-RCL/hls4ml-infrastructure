@@ -1,0 +1,12 @@
+# Vivado log files and the like
+*.log
+*.jou
+
+# Vivado HLS project folders
+*.proj
+
+# Python .pyc tempfiles
+*.pyc
+
+# Jupyter-generated plots
+jupyter/*.png
