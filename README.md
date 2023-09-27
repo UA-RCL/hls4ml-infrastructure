@@ -1,0 +1,14 @@
+Some infrastructure for generating Vivado IP based on [hls4ml](https://github.com/fastmachinelearning/hls4ml) & performing design-space exploration to find ideal hyperparameters
+
+The most important components are `generate_hls4ml_proj.sh` and `ip_sources/python/generate_hls4ml_proj.py`. The former sets environment variables like the name of the project, the weights path, and some parameters used during hls4ml project creation. The latter is used to actually then generate the Vivado HLS project files for a particular neural network. Finally, `manage_hls_projects.sh` can be used to then build it and package it as an IP for use in Vivado.
+
+Basic usage might look something like:
+- Train a Keras-based neural network somehow and get some weights
+- (Optionally) put the weights in `ip_sources/python/weights` and some test data in `ip_sources/python/test_data`
+- Override [load_model](https://github.com/UA-RCL/hls4ml-infrastructure/blob/20d91f0c22a2687b415aae6272cbef35f8e0390b/ip_sources/python/generate_hls4ml_proj.py#L156) to load your model based on [HLS4ML_WEIGHTS_PATH](https://github.com/UA-RCL/hls4ml-infrastructure/blob/main/generate_hls4ml_proj.sh#L10)
+- Override [load_data](https://github.com/UA-RCL/hls4ml-infrastructure/blob/20d91f0c22a2687b415aae6272cbef35f8e0390b/ip_sources/python/generate_hls4ml_proj.py#L195) to load testing data for your model based on [HLS4ML_TEST_DATA_PATH](https://github.com/UA-RCL/hls4ml-infrastructure/blob/main/generate_hls4ml_proj.sh#L11) and [compare_predictions](https://github.com/UA-RCL/hls4ml-infrastructure/blob/20d91f0c22a2687b415aae6272cbef35f8e0390b/ip_sources/python/generate_hls4ml_proj.py#L198) to calculate an accuracy/loss/etc that you would like to use to evaluate models 
+- Pick how you'd like your model to be quantized by setting the WORD_WIDTH and INT_WIDTH in [setup_env.sh](https://github.com/UA-RCL/hls4ml-infrastructure/blob/20d91f0c22a2687b415aae6272cbef35f8e0390b/setup_env.sh#L5-L6) (which controls the "interface" precision or the word/int width used for I/O TDATA from your network) and [default_precision](https://github.com/UA-RCL/hls4ml-infrastructure/blob/main/ip_sources/python/generate_hls4ml_proj.py#L58) (which specifies the word/int width used for other unspecified layers)
+- Change the [fpga_part](https://github.com/UA-RCL/hls4ml-infrastructure/blob/main/ip_sources/python/generate_hls4ml_proj.py#L55)
+- Run `generate_hls4ml_proj.sh` to generate the Vivado HLS project
+- Run `manage_hls_projects.sh --build ${HLS4ML_PROJECT_NAME}` to execute Vivado HLS
+- Run `manage_hls_projects.sh --export ${HLS4ML_PROJECT_NAME}` to package and place your Vivado IP in the `ip_artifacts` folder, ready for use as a Vivado IP repository
