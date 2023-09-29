@@ -3,8 +3,6 @@ import json
 import sys
 import os
 import numpy as np
-from numpy.random import default_rng
-import matplotlib.pyplot as plt
 
 import hls4ml
 
@@ -15,13 +13,17 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Conv2D, Flatten, MaxPooling2D, Dropout, Input, BatchNormalization, Activation
 from tensorflow.keras import models, optimizers, losses
 
+from qkeras.qlayers import QDense, QActivation
+from qkeras.qconvolutional import QConv2D
+from qkeras.quantizers import quantized_bits, quantized_relu
+
 #### environment variables
 
 project_path = os.getenv('HLS4ML_PROJECT_PATH', '../hls/hls4ml_network')
 weights_path = os.getenv('HLS4ML_WEIGHTS_PATH', './weights/weights.h5')
 # What should the word/int widths be for the I/O of this neural network?
-interface_word_width = int(os.getenv('HLS4ML_WORD_WIDTH'), 12)
-interface_int_width  = int(os.getenv('HLS4ML_INT_WIDTH'),  2)
+interface_word_width = int(os.getenv('HLS4ML_WORD_WIDTH', 12))
+interface_int_width  = int(os.getenv('HLS4ML_INT_WIDTH', 2))
 interface_frac_width = interface_word_width - interface_int_width
 assert(interface_frac_width > 0, f"interface_frac_width should be greater than zero but was {interface_frac_width}")
 # When generating, what quantizers should we modify (comma separated w/ no spaces) and what should we set them to?
@@ -37,7 +39,7 @@ vivado_path  = os.getenv('VIVADO_BIN_DIR', '/path/to/vivado/version/bin')
 os.environ['PATH'] = f"{vivado_path}:{os.environ['PATH']}"
 
 # Should we test the network and save metrics into the project directory?
-test_data_path = os.getenv('HLS4ML_TEST_DATA_PATH', '')
+test_data_path = os.getenv('HLS4ML_TEST_DATA_PATH', './inputs/test_data.npz')
 execute_network_testing = test_data_path != ''
 
 # Should we synthesize the resulting network as it's generated?
@@ -52,7 +54,7 @@ execute_hls_vsynth = execute_hls_vsynth == 'True'
 default_reuse_factor = 1
 default_strategy     = 'Latency'
 io_type              = 'io_stream'
-fpga_part            = 'xczu48dr-ffvg1517-2-e'
+fpga_part            = 'xczu9eg-ffvb1156-2-e'
 
 interface_precision  = f'ap_fixed<{interface_word_width}, {interface_int_width}>'
 default_precision    = f'ap_fixed<12, 4>'
@@ -172,7 +174,8 @@ def load_model(weights_path):
               padding='valid',
               kernel_quantizer=kernel_quant,
               bias_quantizer=bias_quant,
-              kernel_initializer='glorot_uniform')(x)
+              kernel_initializer='glorot_uniform',
+              name='input_layer')(x)
   x = QActivation(activation=quant_relu)(x)
   x = MaxPooling2D(pool_size=2, padding='valid')(x)
   x = Dropout(rate=0.5)(x)
@@ -181,7 +184,7 @@ def load_model(weights_path):
   x = QActivation(activation=quant_relu)(x)
   x = Dropout(rate=0.5)(x)
   x = QDense(out_shape[0], kernel_quantizer=kernel_quant, bias_quantizer=bias_quant)(x)
-  x = Activation(activation='softmax')(x)
+  x = Activation(activation='softmax', name='output_layer')(x)
   out_layer = x
 
   model = models.Model(in_layer, out_layer)
@@ -261,7 +264,7 @@ if __name__ == "__main__":
       fp.write(f"The hls4ml model achieved an accuracy of: {hls4ml_pct:.2f}%\n")
       fp.write(f"The hls4ml model matched the keras model {keras_hls4ml_pct:.2f}% of the time\n")
 
-      if keras_hls4ml_pct <= keras_hls4ml_match_threshold
+      if keras_hls4ml_pct <= keras_hls4ml_match_threshold:
         fp.write(f"Network fails to meet match threshold of {keras_hls4ml_match_threshold}%. Skipping build of network")
         sys.exit(0)
     

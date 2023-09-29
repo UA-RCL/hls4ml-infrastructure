@@ -8,7 +8,8 @@ source setup_env.sh
 : "${HLS4ML_PROJECT_PATH:=../hls/hls4ml_project_name}"
 
 : "${HLS4ML_WEIGHTS_PATH:=./weights/weights.h5}"
-: "${HLS4ML_TEST_DATA_PATH:=./inputs/test_data.npz}"
+# : "${HLS4ML_TEST_DATA_PATH:=./inputs/data.npz}"
+: "${HLS4ML_TEST_DATA_PATH:=}"
 : "${HLS4ML_EXECUTE_CSYNTH:=False}"
 : "${HLS4ML_EXECUTE_VSYNTH:=False}"
 : "${HLS4ML_QUANTIZERS_TO_MODIFY:=}"
