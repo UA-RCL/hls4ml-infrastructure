@@ -1,5 +1,5 @@
 # Create project
-open_project $env(HLS$ML_PROJECT_NAME).proj
+open_project $env(HLS4ML_PROJECT_NAME).proj
 set_top myproject
 
 # Add files to the project
@@ -12,7 +12,7 @@ add_files -tb tb_data
 open_solution "soln"
 config_array_partition -maximum_size 8192
 config_compile -name_max_length 60
-set_part {xczu48dr-ffvg1517-2-e}
+set_part {xczu9eg-ffvb1156-2-e}
 create_clock -period 5 -name default
 
 set received_tclargs 0
@@ -38,8 +38,8 @@ if { $argc > 0 } {
                     -description "An IP generated via hls4ml" \
                     -vendor "UA" \
                     -library "UA-Lib" \
-                    -version "1.$env(NN_VERSION)"
-                    -ipname  "hls4ml_nn"
+                    -version "1.$env(NN_VERSION)" \
+                    -ipname  "hls4ml_nn" \
                     -display_name "hls4ml_nn"
     }
     if { $arg == "test" } {

@@ -10,3 +10,6 @@
 
 # Jupyter-generated plots
 jupyter/*.png
+
+# Packaged Vivado IP
+ip_artifacts/*
