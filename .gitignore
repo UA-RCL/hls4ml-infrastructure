@@ -13,3 +13,6 @@ jupyter/*.png
 
 # Packaged Vivado IP
 ip_artifacts/*
+
+# Intermediate sweep results
+quantizer_sweep_results/*

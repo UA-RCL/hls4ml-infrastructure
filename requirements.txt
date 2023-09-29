@@ -8,3 +8,5 @@ jupyter==1.0.0
 jupyter-client==7.0.6
 ipython==7.28.0
 ipykernel==6.4.1
+mplcursors==0.5.2
+ipympl==0.9.3

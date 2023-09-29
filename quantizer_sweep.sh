@@ -2,7 +2,7 @@
 
 BASE_DIR=`realpath ./`
 # Virtual env containing hls4ml
-VENV_DIR=`./venv`
+VENV_DIR=`realpath ./venv`
 # Where will intermediate hls4ml projects be generated?
 SWEEP_DIR=`realpath ./quantizer_sweep_results/2023-09-21`
 # What test data should we use?
@@ -95,7 +95,7 @@ export -f gen_design
 # quantization mode of the modified quantizer
 # overflow mode of the modified quantizer
 
-parallel --seqreplace "${jobnum}" --joblog "${SWEEP_DIR}/parallel.joblog" --resume-failed --eta --jobs ${PARALLEL_JOBS} --delay 15 \
+parallel --seqreplace "{jobnum}" --joblog "${SWEEP_DIR}/parallel.joblog" --resume-failed --eta --jobs ${PARALLEL_JOBS} --delay 15s \
   gen_design {jobnum} "${BASE_DIR}" "${VENV_DIR}" "${SWEEP_DIR}" \
              "${TEST_DATA_PATH}" "${WEIGHTS_PATH}" "${EXECUTE_CSYNTH}" "${EXECUTE_VSYNTH}" \
              {} \
